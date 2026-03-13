@@ -1,0 +1,47 @@
+title: Network Port Scan Detection
+id: fb903677-c0b5-44d2-a28a-79701311bc8d
+status: stable
+description: Detects network reconnaissance through port scanning tools and suspicious connection patterns.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1046/
+tags:
+  - attack.discovery
+  - attack.t1046
+logsource:
+  category: linux
+  product: firewall
+detection:
+  keywords:
+    - "nmap"
+    - "zmap"
+    - "masscan"
+    - "SYN scan"
+    - "syn scan"
+    - "FIN scan"
+    - "NULL scan"
+    - "XMAS scan"
+    - "port scan"
+    - "connection refused"
+    - "Connection reset by peer"
+    - "ICMP redirect"
+    - "UDP scan"
+    - "SERVICE_SCAN"
+    - "OS_SCAN"
+    - "nikto"
+    - "sqlmap"
+    - "dirb"
+    - "dirbuster"
+    - "gobuster"
+    - "wfuzz"
+    - "ffuf"
+    - "nuclei"
+    - "rustscan"
+  condition: keywords
+fields:
+  - source_ip
+level: medium
+falsepositives:
+  - Authorized penetration testing
+  - Network monitoring tools

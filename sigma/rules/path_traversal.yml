@@ -1,0 +1,45 @@
+title: Path Traversal / Directory Traversal Attack
+id: 2de39b71-d32f-4357-91d8-cdb95d3a908f
+status: stable
+description: Detects path traversal attempts to access files outside the web root directory.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1083/
+  - https://owasp.org/www-community/attacks/Path_Traversal
+tags:
+  - attack.discovery
+  - attack.t1083
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - "../"
+    - "..%2f"
+    - "%2e%2e/"
+    - "%2e%2e%2f"
+    - "..%255c"
+    - "..%5c"
+    - "..\\/"
+    - "..../"
+    - "/etc/passwd"
+    - "/etc/shadow"
+    - "/etc/hosts"
+    - "/proc/self"
+    - "/var/log"
+    - "C:\\Windows"
+    - "C:\\boot.ini"
+    - "win.ini"
+    - "web.config"
+    - ".htaccess"
+    - ".htpasswd"
+    - ".env"
+    - "wp-config.php"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+level: high
+falsepositives:
+  - Legitimate backup or monitoring scripts

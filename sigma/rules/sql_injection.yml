@@ -1,0 +1,57 @@
+title: SQL Injection Attempt
+id: 6dd0e6b5-2f2b-5c6d-af2e-2b3c4d5e6f70
+status: stable
+description: Detects SQL injection patterns in web server logs indicating an attempted database manipulation attack.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1190/
+  - https://owasp.org/www-community/attacks/SQL_Injection
+tags:
+  - attack.initial_access
+  - attack.t1190
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - "union select"
+    - "union all select"
+    - "select * from"
+    - "select.*from.*where"
+    - "insert into"
+    - "delete from"
+    - "drop table"
+    - "drop database"
+    - "1=1"
+    - "1'='1"
+    - "or 1=1"
+    - "' or '"
+    - "' OR '"
+    - "exec("
+    - "execute("
+    - "xp_cmdshell"
+    - "sp_executesql"
+    - "information_schema"
+    - "sys.tables"
+    - "BENCHMARK("
+    - "SLEEP("
+    - "WAITFOR DELAY"
+    - "LOAD_FILE("
+    - "INTO OUTFILE"
+    - "INTO DUMPFILE"
+    - "GROUP BY.*HAVING"
+    - "ORDER BY.*--"
+    - "CAST("
+    - "CONVERT("
+    - "char(0x"
+    - "0x31303235343830303536"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+  - http_method
+level: critical
+falsepositives:
+  - Legitimate database administration tools
+  - Web vulnerability scanners used by security teams

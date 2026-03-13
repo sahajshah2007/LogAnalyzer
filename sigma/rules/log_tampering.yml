@@ -1,0 +1,44 @@
+title: Log Tampering or Evasion
+id: a459ee04-bdca-4808-8777-b5b0ab8b3caf
+status: stable
+description: Detects attempts to tamper with system logs, clear audit trails, or disable logging.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1070/002/
+tags:
+  - attack.defense_evasion
+  - attack.t1070.002
+logsource:
+  category: linux
+  product: auth
+detection:
+  keywords:
+    - "truncate.*log"
+    - "> /var/log"
+    - "rm /var/log"
+    - "rm -rf /var/log"
+    - "shred.*log"
+    - "history -c"
+    - "history -w"
+    - "unset HISTFILE"
+    - "export HISTSIZE=0"
+    - "set +o history"
+    - "HISTCONTROL=ignorespace"
+    - "auditctl -D"
+    - "service auditd stop"
+    - "systemctl stop auditd"
+    - "systemctl disable rsyslog"
+    - "systemctl stop rsyslog"
+    - "kill.*syslogd"
+    - "logrotate.*force"
+    - "journalctl.*vacuum"
+    - "journalctl --rotate"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: critical
+falsepositives:
+  - Legitimate log rotation by system administrators
+  - Automated log management scripts

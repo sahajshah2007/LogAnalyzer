@@ -1,0 +1,52 @@
+title: Suspicious Process Execution
+id: cd6c835d-9d71-4cf0-be17-ff771f9834c4
+status: stable
+description: Detects execution of suspicious processes commonly used in post-exploitation and lateral movement.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1059/004/
+tags:
+  - attack.execution
+  - attack.t1059.004
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "nc -l"
+    - "nc -e"
+    - "ncat -l"
+    - "bash -i"
+    - "bash -c"
+    - "/dev/tcp/"
+    - "/dev/udp/"
+    - "cmd /c"
+    - "powershell"
+    - "wget.*-O"
+    - "curl.*|.*sh"
+    - "curl.*|.*bash"
+    - "python -c"
+    - "python3 -c"
+    - "perl -e"
+    - "ruby -e"
+    - "php -r"
+    - "socat"
+    - "msfconsole"
+    - "msfvenom"
+    - "meterpreter"
+    - "reverse_tcp"
+    - "bind_shell"
+    - "base64 -d"
+    - "base64 --decode"
+    - "crontab -e"
+    - "at -f"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+  - process
+level: critical
+falsepositives:
+  - System administrators using legitimate tools
+  - CI/CD pipeline scripts

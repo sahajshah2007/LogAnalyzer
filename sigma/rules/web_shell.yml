@@ -1,0 +1,47 @@
+title: Web Shell Detection
+id: c2febfb4-facf-40f6-8013-8d6a8b593099
+status: stable
+description: Detects indicators of web shell deployment and usage on web servers.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1505/003/
+tags:
+  - attack.persistence
+  - attack.t1505.003
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - "c99"
+    - "r57"
+    - "b374k"
+    - "webshell"
+    - "web shell"
+    - "WSO "
+    - "FilesMan"
+    - "cmd.php"
+    - "shell.php"
+    - "backdoor.php"
+    - "eval(base64_decode"
+    - "eval(gzinflate"
+    - "eval(str_rot13"
+    - "system($_GET"
+    - "system($_POST"
+    - "passthru("
+    - "shell_exec("
+    - "proc_open("
+    - "popen("
+    - "exec($_"
+    - "assert($_"
+    - "preg_replace.*e modifier"
+    - "<?php.*eval"
+    - "<?php.*system"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+level: critical
+falsepositives:
+  - Legitimate PHP debugging tools

@@ -1,0 +1,54 @@
+title: Cross-Site Scripting (XSS) Attempt
+id: 4f9d621e-128b-4af3-a2d4-a206a4cb59f0
+status: stable
+description: Detects XSS attack patterns in web server logs indicating script injection attempts.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1059/007/
+  - https://owasp.org/www-community/attacks/xss/
+tags:
+  - attack.execution
+  - attack.t1059.007
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - "<script"
+    - "</script>"
+    - "javascript:"
+    - "onerror="
+    - "onload="
+    - "onclick="
+    - "onmouseover="
+    - "onfocus="
+    - "onblur="
+    - "onsubmit="
+    - "<iframe"
+    - "<object"
+    - "<embed"
+    - "<svg onload"
+    - "<img src=x onerror"
+    - "<body onload"
+    - "document.cookie"
+    - "document.location"
+    - "window.location"
+    - "eval("
+    - "String.fromCharCode"
+    - "alert("
+    - "prompt("
+    - "confirm("
+    - "atob("
+    - "btoa("
+    - "&#x"
+    - "%3Cscript"
+    - "%3Csvg"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+level: high
+falsepositives:
+  - Legitimate use of JavaScript frameworks
+  - Web development and debugging tools

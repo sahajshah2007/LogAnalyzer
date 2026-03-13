@@ -1,0 +1,48 @@
+title: Command and Control Communication
+id: a6322cda-5fe0-4a3b-b676-b618585c44fd
+status: stable
+description: Detects indicators of C2 (Command and Control) communication channels and beaconing behavior.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1071/001/
+tags:
+  - attack.command_and_control
+  - attack.t1071.001
+logsource:
+  category: linux
+  product: network
+detection:
+  keywords:
+    - "Cobalt Strike"
+    - "beacon"
+    - "C2 channel"
+    - "reverse shell"
+    - "connect back"
+    - "callback"
+    - "tor proxy"
+    - ".onion"
+    - "ngrok"
+    - "localtunnel"
+    - "serveo"
+    - "pagekite"
+    - "DNS tunnel"
+    - "dnscat"
+    - "iodine"
+    - "dns2tcp"
+    - "ICMP tunnel"
+    - "ptunnel"
+    - "chisel"
+    - "ligolo"
+    - "sshuttle"
+    - "proxychains"
+    - "reGeorg"
+    - "plink"
+  condition: keywords
+fields:
+  - source_ip
+  - dest_ip
+level: critical
+falsepositives:
+  - Legitimate VPN or tunnel usage
+  - Security research

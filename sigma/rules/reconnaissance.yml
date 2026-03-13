@@ -1,0 +1,57 @@
+title: Reconnaissance and Enumeration Activity
+id: 7ea44fb5-0c41-4fc7-811d-d6fbed08132e
+status: stable
+description: Detects reconnaissance and enumeration techniques used to gather system and network information.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1018/
+tags:
+  - attack.discovery
+  - attack.t1018
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "whoami"
+    - "id "
+    - "uname -a"
+    - "cat /etc/os-release"
+    - "hostname"
+    - "ifconfig"
+    - "ip addr"
+    - "netstat -"
+    - "ss -"
+    - "arp -a"
+    - "route -n"
+    - "traceroute"
+    - "dig "
+    - "nslookup"
+    - "ping -c"
+    - "find / -perm"
+    - "find / -name"
+    - "find / -user root"
+    - "locate "
+    - "lsof"
+    - "ps aux"
+    - "top -b"
+    - "env"
+    - "printenv"
+    - "cat /proc/version"
+    - "dpkg -l"
+    - "rpm -qa"
+    - "systemctl list-units"
+    - "crontab -l"
+    - "lastlog"
+    - "w "
+    - "last -a"
+    - "getent"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: medium
+falsepositives:
+  - System administrators performing routine checks
+  - Monitoring and inventory scripts

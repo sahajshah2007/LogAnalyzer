@@ -1,0 +1,50 @@
+title: Lateral Movement Detection
+id: 64f84fb1-96a4-4405-9354-e9980cf4b17d
+status: stable
+description: Detects lateral movement techniques through SSH tunneling, remote access, and network pivoting.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1021/004/
+tags:
+  - attack.lateral_movement
+  - attack.t1021.004
+logsource:
+  category: linux
+  product: auth
+detection:
+  keywords:
+    - "ssh -L"
+    - "ssh -R"
+    - "ssh -D"
+    - "ssh tunnel"
+    - "port forwarding"
+    - "Accepted publickey"
+    - "Accepted password.*from"
+    - "sshd.*session opened"
+    - "rdp"
+    - "xfreerdp"
+    - "rdesktop"
+    - "VNC"
+    - "vncviewer"
+    - "psexec"
+    - "winexe"
+    - "smbclient"
+    - "net use"
+    - "mount -t cifs"
+    - "wmic"
+    - "invoke-command"
+    - "enter-pssession"
+    - "winrs"
+    - "ansible"
+    - "saltstack"
+    - "puppet agent"
+  condition: keywords
+fields:
+  - source_ip
+  - dest_ip
+  - user
+level: high
+falsepositives:
+  - Legitimate SSH tunneling for development
+  - Configuration management tools

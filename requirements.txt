@@ -1,0 +1,23 @@
+# Log analyzer - Host-Based Intrusion Detection System
+# Python 3.10+
+
+# Configuration file parsing
+PyYAML>=6.0
+
+# HTTP requests for external APIs
+requests>=2.28.0
+
+# Database (included with Python, but listed for clarity)
+# sqlite3 (built-in)
+
+# PostgreSQL driver (optional, for production scalability)
+psycopg2-binary>=2.9.0
+
+# Optional: For enhanced logging
+colorlog>=6.7.0
+
+# REST API for frontend
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
+pySigma>=1.1.0

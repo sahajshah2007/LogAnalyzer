@@ -1,0 +1,35 @@
+title: SSH Brute Force Authentication Failure
+id: 5cc9d5a4-1e1a-4b5c-9e1d-1a2b3c4d5e6f
+status: stable
+description: Detects repeated SSH authentication failures indicating a brute force attack.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1110/001/
+tags:
+  - attack.credential_access
+  - attack.t1110.001
+logsource:
+  category: linux
+  product: auth
+  service: sshd
+detection:
+  keywords:
+    - "Failed password"
+    - "Invalid user"
+    - "Authentication failure"
+    - "sshd.*Failed"
+    - "denied by pam"
+    - "failed.*ssh"
+    - "maximum authentication attempts"
+    - "Too many authentication failures"
+    - "Connection closed by authenticating user"
+    - "PAM service(sshd) ignoring"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: high
+falsepositives:
+  - Legitimate users forgetting passwords
+  - Misconfigured SSH clients

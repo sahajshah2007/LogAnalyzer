@@ -1,0 +1,44 @@
+title: Privilege Escalation Attempt
+id: 13dcd4b5-b01d-405f-bf8b-348ab4b85e2c
+status: stable
+description: Detects attempts to escalate privileges via sudo abuse, SUID binaries, or unauthorized root access.
+author: Log analyzer
+date: 2026/03/01
+references:
+  - https://attack.mitre.org/techniques/T1548/003/
+tags:
+  - attack.privilege_escalation
+  - attack.t1548.003
+logsource:
+  category: linux
+  product: auth
+detection:
+  keywords:
+    - "sudo: COMMAND"
+    - "NOPASSWD"
+    - "sudo.*ALL"
+    - "sudoedit"
+    - "su: FAILED"
+    - "su: Authentication failure"
+    - "pkexec"
+    - "polkit"
+    - "setuid"
+    - "setgid"
+    - "chmod +s"
+    - "chmod u+s"
+    - "GTFOBins"
+    - "SUID"
+    - "uid=0"
+    - "root shell"
+    - "passwd.*root"
+    - "/bin/su"
+    - "sudo -i"
+    - "sudo su"
+    - "doas"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: critical
+falsepositives:
+  - System administrators performing legitimate tasks
