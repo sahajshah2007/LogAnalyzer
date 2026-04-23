@@ -1,0 +1,52 @@
+title: Sensitive File Access or Modification
+id: b8c9d0e1-f2a3-4567-bcde-678901234567
+status: stable
+description: Detects unauthorized access or modification of sensitive system files including passwd, sudoers, SSH keys, and configuration files.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1565/001/
+tags:
+  - attack.impact
+  - attack.t1565.001
+logsource:
+  category: linux
+  product: file_event
+detection:
+  keywords:
+    - "/etc/passwd"
+    - "/etc/shadow"
+    - "/etc/sudoers"
+    - "/etc/sudoers.d/"
+    - "/etc/hosts"
+    - "/etc/hostname"
+    - "/etc/resolv.conf"
+    - "/etc/nsswitch.conf"
+    - "/etc/pam.d/"
+    - "/etc/security/"
+    - "/etc/ssh/sshd_config"
+    - "/etc/ssh/ssh_config"
+    - "authorized_keys"
+    - "known_hosts"
+    - "/root/.ssh/"
+    - "/etc/ssl/private/"
+    - "/etc/ssl/certs/"
+    - "/etc/nginx/nginx.conf"
+    - "/etc/apache2/"
+    - "/etc/httpd/"
+    - "/etc/mysql/"
+    - "/etc/postgresql/"
+    - "wp-config.php"
+    - ".env"
+    - "database.yml"
+    - "secrets.yml"
+    - "credentials.json"
+    - "service_account.json"
+  condition: keywords
+fields:
+  - user
+  - file_path
+level: high
+falsepositives:
+  - System administrators performing maintenance
+  - Configuration management tools

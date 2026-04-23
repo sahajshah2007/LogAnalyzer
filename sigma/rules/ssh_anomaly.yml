@@ -1,0 +1,57 @@
+title: SSH Anomalous Activity
+id: b8c9d0e1-f2a3-4567-bcde-567890123456
+status: stable
+description: Detects anomalous SSH activity including unusual login times, new source IPs, key-based auth from unknown hosts, and SSH config changes.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1021/004/
+tags:
+  - attack.lateral_movement
+  - attack.t1021.004
+logsource:
+  category: linux
+  product: auth
+  service: sshd
+detection:
+  keywords:
+    - "Accepted publickey"
+    - "Accepted password"
+    - "Accepted keyboard-interactive"
+    - "session opened for user root"
+    - "session opened for user"
+    - "New session"
+    - "pam_unix(sshd:session)"
+    - "sshd: ROOT LOGIN"
+    - "ROOT LOGIN"
+    - "root login"
+    - "PermitRootLogin"
+    - "AllowUsers"
+    - "DenyUsers"
+    - "AllowGroups"
+    - "DenyGroups"
+    - "sshd_config"
+    - "authorized_keys"
+    - "ssh-keygen"
+    - "ssh-copy-id"
+    - "ssh-add"
+    - "ssh-agent"
+    - "ForwardAgent yes"
+    - "StrictHostKeyChecking no"
+    - "UserKnownHostsFile /dev/null"
+    - "ProxyJump"
+    - "ProxyCommand"
+    - "ControlMaster"
+    - "ControlPath"
+    - "X11Forwarding"
+    - "AllowTcpForwarding"
+    - "GatewayPorts"
+    - "PermitTunnel"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: medium
+falsepositives:
+  - Legitimate SSH administration
+  - Authorized remote access

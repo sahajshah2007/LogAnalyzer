@@ -1,0 +1,48 @@
+title: Rootkit and Kernel Module Tampering
+id: e5f6a7b8-c9d0-1234-efab-345678901234
+status: stable
+description: Detects loading of suspicious kernel modules, rootkit indicators, and kernel-level tampering.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1014/
+tags:
+  - attack.defense_evasion
+  - attack.t1014
+logsource:
+  category: linux
+  product: kernel
+detection:
+  keywords:
+    - "insmod"
+    - "modprobe"
+    - "rmmod"
+    - "lsmod"
+    - "/dev/kmem"
+    - "/dev/mem"
+    - "/proc/kcore"
+    - "ptrace"
+    - "LD_PRELOAD"
+    - "/etc/ld.so.preload"
+    - "rootkit"
+    - "hide process"
+    - "hide file"
+    - "syscall table"
+    - "sys_call_table"
+    - "kernel module"
+    - "kprobe"
+    - "ebpf"
+    - "bpf_prog"
+    - "diamorphine"
+    - "reptile"
+    - "azazel"
+    - "necurs"
+    - "suterusu"
+  condition: keywords
+fields:
+  - user
+  - process
+level: critical
+falsepositives:
+  - Legitimate kernel module management by administrators
+  - Security tools using eBPF

@@ -1,0 +1,51 @@
+title: Process Injection and Memory Manipulation
+id: a3b4c5d6-e7f8-9012-abcd-123456789012
+status: stable
+description: Detects process injection techniques including ptrace injection, /proc/mem writes, shared library injection, and shellcode injection.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1055/
+tags:
+  - attack.defense_evasion
+  - attack.privilege_escalation
+  - attack.t1055
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "ptrace"
+    - "PTRACE_ATTACH"
+    - "PTRACE_POKETEXT"
+    - "PTRACE_POKEDATA"
+    - "/proc/*/mem"
+    - "/proc/*/maps"
+    - "process_vm_writev"
+    - "process_vm_readv"
+    - "dlopen"
+    - "dlsym"
+    - "LD_PRELOAD"
+    - "LD_AUDIT"
+    - "shared library injection"
+    - "shellcode"
+    - "mmap.*PROT_EXEC"
+    - "mprotect.*PROT_EXEC"
+    - "memfd_create"
+    - "shm_open"
+    - "anonymous mapping"
+    - "rwx mapping"
+    - "hollowing"
+    - "process hollow"
+    - "reflective injection"
+    - "reflective dll"
+    - "donut"
+    - "sRDI"
+  condition: keywords
+fields:
+  - user
+  - process
+level: critical
+falsepositives:
+  - Debuggers and profiling tools
+  - Security research tools

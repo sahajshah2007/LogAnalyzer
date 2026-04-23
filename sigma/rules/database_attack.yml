@@ -1,0 +1,59 @@
+title: Database Attack and Unauthorized Access
+id: d8e9f0a1-b2c3-4567-defa-678901234567
+status: stable
+description: Detects database attacks including unauthorized access, privilege abuse, stored procedure exploitation, and data exfiltration via database.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1190/
+tags:
+  - attack.initial_access
+  - attack.t1190
+logsource:
+  category: application
+  product: database
+detection:
+  keywords:
+    - "Access denied for user"
+    - "authentication failed"
+    - "login failed for user"
+    - "invalid username"
+    - "invalid password"
+    - "too many connections"
+    - "connection refused"
+    - "xp_cmdshell"
+    - "sp_executesql"
+    - "OPENROWSET"
+    - "OPENDATASOURCE"
+    - "BULK INSERT"
+    - "LOAD DATA INFILE"
+    - "INTO OUTFILE"
+    - "INTO DUMPFILE"
+    - "LOAD_FILE"
+    - "sys.tables"
+    - "information_schema"
+    - "pg_shadow"
+    - "pg_hba.conf"
+    - "mysql.user"
+    - "GRANT ALL"
+    - "GRANT SUPER"
+    - "CREATE USER"
+    - "DROP USER"
+    - "ALTER USER"
+    - "mysqldump"
+    - "pg_dump"
+    - "mongodump"
+    - "redis-cli"
+    - "FLUSHALL"
+    - "CONFIG SET"
+    - "CONFIG GET"
+    - "SLAVEOF"
+    - "DEBUG sleep"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: high
+falsepositives:
+  - Legitimate database administration
+  - Application connection errors

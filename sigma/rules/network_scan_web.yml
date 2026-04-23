@@ -1,0 +1,65 @@
+title: Web Application Scanning and Enumeration
+id: a9b0c1d2-e3f4-5678-abcd-789012345678
+status: stable
+description: Detects web application scanners, directory brute-forcers, and automated vulnerability assessment tools.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1595/003/
+tags:
+  - attack.reconnaissance
+  - attack.t1595.003
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - "nikto"
+    - "Nikto"
+    - "sqlmap"
+    - "SQLMap"
+    - "dirb"
+    - "dirbuster"
+    - "DirBuster"
+    - "gobuster"
+    - "wfuzz"
+    - "ffuf"
+    - "feroxbuster"
+    - "nuclei"
+    - "Nuclei"
+    - "burpsuite"
+    - "BurpSuite"
+    - "ZAP"
+    - "OWASP ZAP"
+    - "w3af"
+    - "skipfish"
+    - "arachni"
+    - "acunetix"
+    - "Acunetix"
+    - "nessus"
+    - "Nessus"
+    - "openvas"
+    - "OpenVAS"
+    - "masscan"
+    - "rustscan"
+    - "RustScan"
+    - "whatweb"
+    - "WhatWeb"
+    - "wapiti"
+    - "commix"
+    - "User-Agent: python-requests"
+    - "User-Agent: Go-http-client"
+    - "User-Agent: curl"
+    - "User-Agent: Wget"
+    - "User-Agent: libwww-perl"
+    - "User-Agent: masscan"
+    - "User-Agent: zgrab"
+    - "User-Agent: nuclei"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+level: medium
+falsepositives:
+  - Authorized security assessments
+  - Monitoring tools

@@ -1,0 +1,50 @@
+title: Persistence via Cron Job or Scheduled Task
+id: b2c3d4e5-f6a7-8901-bcde-f12345678901
+status: stable
+description: Detects creation or modification of cron jobs and scheduled tasks used for persistence.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1053/
+tags:
+  - attack.persistence
+  - attack.t1053
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "crontab -e"
+    - "crontab -l"
+    - "/etc/cron.d/"
+    - "/etc/cron.daily/"
+    - "/etc/cron.hourly/"
+    - "/etc/cron.weekly/"
+    - "/etc/cron.monthly/"
+    - "/var/spool/cron/"
+    - "/etc/crontab"
+    - "at -f"
+    - "at now"
+    - "atd"
+    - "systemctl enable"
+    - "systemctl --now enable"
+    - "update-rc.d"
+    - "chkconfig --add"
+    - "insserv"
+    - "/etc/init.d/"
+    - "/etc/rc.local"
+    - "rc.local"
+    - "~/.bashrc"
+    - "~/.bash_profile"
+    - "~/.profile"
+    - "/etc/profile.d/"
+    - "~/.config/autostart"
+    - "XDG_AUTOSTART"
+  condition: keywords
+fields:
+  - user
+  - process
+level: medium
+falsepositives:
+  - Legitimate system administration
+  - Software installation scripts

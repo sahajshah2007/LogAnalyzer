@@ -1,0 +1,54 @@
+title: Container Escape and Docker Abuse
+id: d0e1f2a3-b4c5-6789-defa-890123456789
+status: stable
+description: Detects container escape attempts, Docker socket abuse, privileged container misuse, and Kubernetes exploitation.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1611/
+tags:
+  - attack.privilege_escalation
+  - attack.t1611
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "docker.sock"
+    - "/var/run/docker.sock"
+    - "docker run --privileged"
+    - "docker run -v /:/host"
+    - "docker run --pid=host"
+    - "docker run --net=host"
+    - "docker exec"
+    - "nsenter"
+    - "nsenter --target 1"
+    - "unshare"
+    - "runc"
+    - "cgroups escape"
+    - "cgroup escape"
+    - "container escape"
+    - "kubectl exec"
+    - "kubectl run"
+    - "kubectl create"
+    - "kubectl apply"
+    - "hostPath"
+    - "privileged: true"
+    - "hostNetwork: true"
+    - "hostPID: true"
+    - "securityContext"
+    - "allowPrivilegeEscalation"
+    - "capabilities: add"
+    - "SYS_ADMIN"
+    - "SYS_PTRACE"
+    - "crictl"
+    - "containerd"
+    - "podman --privileged"
+  condition: keywords
+fields:
+  - user
+  - process
+level: critical
+falsepositives:
+  - Legitimate container administration
+  - DevOps pipelines

@@ -1,0 +1,54 @@
+title: Defense Evasion via Obfuscation and Encoding
+id: d4e5f6a7-b8c9-0123-defa-234567890123
+status: stable
+description: Detects use of encoding, obfuscation, and packing techniques to evade detection.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1027/
+tags:
+  - attack.defense_evasion
+  - attack.t1027
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "base64 -d"
+    - "base64 --decode"
+    - "base64 -di"
+    - "echo.*|.*base64"
+    - "echo.*base64"
+    - "python.*base64"
+    - "python3.*base64"
+    - "openssl enc"
+    - "openssl base64"
+    - "xxd -r"
+    - "xxd -p"
+    - "od -A x"
+    - "tr -d"
+    - "gzip -d"
+    - "gunzip"
+    - "zcat"
+    - "bzip2 -d"
+    - "xz -d"
+    - "7z x"
+    - "unzip -p"
+    - "IEX"
+    - "Invoke-Expression"
+    - "FromBase64String"
+    - "EncodedCommand"
+    - "-enc "
+    - "-encodedcommand"
+    - "char(0x"
+    - "\\x41\\x42"
+    - "rot13"
+    - "str_rot13"
+  condition: keywords
+fields:
+  - user
+  - process
+level: high
+falsepositives:
+  - Legitimate use of encoding in scripts
+  - Data processing pipelines

@@ -1,0 +1,61 @@
+title: Data Destruction and Disk Wiping
+id: e5f6a7b8-c9d0-1234-efab-234567890123
+status: stable
+description: Detects data destruction activities including disk wiping, secure deletion, database dropping, and file system destruction.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1485/
+tags:
+  - attack.impact
+  - attack.t1485
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "shred -u"
+    - "shred -z"
+    - "shred /dev/"
+    - "wipe "
+    - "wipe -r"
+    - "dd if=/dev/zero"
+    - "dd if=/dev/urandom"
+    - "dd of=/dev/sd"
+    - "dd of=/dev/hd"
+    - "dd of=/dev/nvme"
+    - "mkfs.ext4 /dev/"
+    - "mkfs.xfs /dev/"
+    - "mkfs.ntfs /dev/"
+    - "format /dev/"
+    - "fdisk -l"
+    - "parted -s"
+    - "gdisk"
+    - "sgdisk --zap"
+    - "blkdiscard"
+    - "hdparm --security-erase"
+    - "secure-delete"
+    - "srm "
+    - "sfill"
+    - "sswap"
+    - "DROP DATABASE"
+    - "DROP SCHEMA"
+    - "TRUNCATE TABLE"
+    - "DELETE FROM.*WHERE 1=1"
+    - "rm -rf /"
+    - "rm -rf /*"
+    - "rm -rf /home"
+    - "rm -rf /var"
+    - "rm -rf /etc"
+    - "rm -rf /usr"
+    - "rm -rf /boot"
+    - "fork bomb"
+    - ":(){ :|:& };:"
+  condition: keywords
+fields:
+  - user
+  - process
+level: critical
+falsepositives:
+  - Authorized disk sanitization
+  - System decommissioning

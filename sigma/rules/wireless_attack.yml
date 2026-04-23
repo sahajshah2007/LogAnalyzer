@@ -1,0 +1,52 @@
+title: Wireless Network Attack
+id: e9f0a1b2-c3d4-5678-efab-789012345678
+status: stable
+description: Detects wireless network attacks including deauthentication attacks, evil twin AP, WPS attacks, and wireless credential capture.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1465/
+tags:
+  - attack.initial_access
+  - attack.t1465
+logsource:
+  category: linux
+  product: network
+detection:
+  keywords:
+    - "aircrack-ng"
+    - "airmon-ng"
+    - "airodump-ng"
+    - "aireplay-ng"
+    - "airbase-ng"
+    - "deauth"
+    - "deauthentication"
+    - "disassociation flood"
+    - "evil twin"
+    - "rogue AP"
+    - "rogue access point"
+    - "WPS attack"
+    - "WPS pin"
+    - "reaver"
+    - "bully"
+    - "pixiewps"
+    - "wifite"
+    - "wifiphisher"
+    - "hostapd-wpe"
+    - "freeradius-wpe"
+    - "karma attack"
+    - "PMKID attack"
+    - "handshake capture"
+    - "4-way handshake"
+    - "WPA handshake"
+    - "monitor mode"
+    - "promiscuous mode"
+    - "packet injection"
+    - "wireless injection"
+  condition: keywords
+fields:
+  - source_ip
+level: high
+falsepositives:
+  - Authorized wireless security assessments
+  - Network monitoring tools

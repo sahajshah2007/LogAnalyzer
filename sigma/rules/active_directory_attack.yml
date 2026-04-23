@@ -1,0 +1,76 @@
+title: Active Directory and Kerberos Attack
+id: b2c3d4e5-f6a7-8901-bcde-901234567890
+status: stable
+description: Detects Active Directory attacks including Kerberoasting, AS-REP roasting, Pass-the-Hash, Pass-the-Ticket, DCSync, and Golden/Silver ticket attacks.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1558/
+tags:
+  - attack.credential_access
+  - attack.t1558
+logsource:
+  category: windows
+  product: security
+detection:
+  keywords:
+    - "Kerberoasting"
+    - "kerberoast"
+    - "AS-REP roasting"
+    - "asreproast"
+    - "Pass-the-Hash"
+    - "pass the hash"
+    - "pth"
+    - "Pass-the-Ticket"
+    - "pass the ticket"
+    - "Golden Ticket"
+    - "golden ticket"
+    - "Silver Ticket"
+    - "silver ticket"
+    - "DCSync"
+    - "dcsync"
+    - "DCShadow"
+    - "dcshadow"
+    - "Skeleton Key"
+    - "skeleton key"
+    - "mimikatz"
+    - "sekurlsa"
+    - "lsadump"
+    - "kerberos::list"
+    - "kerberos::ptt"
+    - "kerberos::golden"
+    - "kerberos::silver"
+    - "Rubeus"
+    - "rubeus"
+    - "Impacket"
+    - "impacket"
+    - "GetNPUsers"
+    - "GetUserSPNs"
+    - "GetTGT"
+    - "GetST"
+    - "ticketer"
+    - "raiseChild"
+    - "BloodHound"
+    - "SharpHound"
+    - "ldapdomaindump"
+    - "PowerView"
+    - "PowerSploit"
+    - "Empire"
+    - "Covenant"
+    - "Metasploit"
+    - "CrackMapExec"
+    - "crackmapexec"
+    - "evil-winrm"
+    - "wmiexec"
+    - "smbexec"
+    - "psexec"
+    - "atexec"
+    - "dcomexec"
+  condition: keywords
+fields:
+  - user
+  - source_ip
+level: critical
+falsepositives:
+  - Authorized penetration testing
+  - Security audits

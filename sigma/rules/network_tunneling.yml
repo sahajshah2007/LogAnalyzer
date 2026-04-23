@@ -1,0 +1,59 @@
+title: Network Tunneling and Protocol Abuse
+id: f2a3b4c5-d6e7-8901-fabc-012345678901
+status: stable
+description: Detects DNS tunneling, ICMP tunneling, HTTP tunneling, and other covert channel techniques used for C2 or data exfiltration.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1572/
+tags:
+  - attack.command_and_control
+  - attack.t1572
+logsource:
+  category: linux
+  product: network
+detection:
+  keywords:
+    - "dns tunnel"
+    - "DNS tunnel"
+    - "dnscat"
+    - "dnscat2"
+    - "iodine"
+    - "dns2tcp"
+    - "dnsx"
+    - "icmp tunnel"
+    - "ICMP tunnel"
+    - "ptunnel"
+    - "icmptunnel"
+    - "http tunnel"
+    - "HTTP tunnel"
+    - "httptunnel"
+    - "stunnel"
+    - "socat"
+    - "chisel"
+    - "ligolo"
+    - "ligolo-ng"
+    - "frp"
+    - "frpc"
+    - "frps"
+    - "sshuttle"
+    - "proxychains"
+    - "proxychains4"
+    - "tor "
+    - "torsocks"
+    - "torify"
+    - ".onion"
+    - "meek"
+    - "obfs4"
+    - "shadowsocks"
+    - "v2ray"
+    - "xray"
+    - "trojan-go"
+  condition: keywords
+fields:
+  - source_ip
+  - dest_ip
+level: high
+falsepositives:
+  - Legitimate VPN usage
+  - Privacy tools

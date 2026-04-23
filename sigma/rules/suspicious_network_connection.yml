@@ -1,0 +1,52 @@
+title: Suspicious Outbound Network Connection
+id: d2e3f4a5-b6c7-8901-defa-012345678901
+status: stable
+description: Detects suspicious outbound connections to unusual ports, known malicious infrastructure, and unexpected external services.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1071/
+tags:
+  - attack.command_and_control
+  - attack.t1071
+logsource:
+  category: linux
+  product: network
+detection:
+  keywords:
+    - "ESTABLISHED.*:4444"
+    - "ESTABLISHED.*:1337"
+    - "ESTABLISHED.*:31337"
+    - "ESTABLISHED.*:8888"
+    - "ESTABLISHED.*:9999"
+    - "ESTABLISHED.*:6666"
+    - "ESTABLISHED.*:6667"
+    - "ESTABLISHED.*:6668"
+    - "ESTABLISHED.*:6669"
+    - "connect to 4444"
+    - "connect to 1337"
+    - "connect to 31337"
+    - "outbound connection"
+    - "unexpected connection"
+    - "connection to unknown"
+    - "pastebin.com"
+    - "paste.ee"
+    - "hastebin.com"
+    - "ghostbin.com"
+    - "transfer.sh"
+    - "file.io"
+    - "temp.sh"
+    - "0x0.st"
+    - "catbox.moe"
+    - "anonfiles.com"
+    - "gofile.io"
+    - "raw.githubusercontent.com"
+    - "gist.githubusercontent.com"
+  condition: keywords
+fields:
+  - source_ip
+  - dest_ip
+level: high
+falsepositives:
+  - Legitimate development tools
+  - Authorized file sharing services

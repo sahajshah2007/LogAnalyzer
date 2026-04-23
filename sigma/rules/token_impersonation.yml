@@ -1,0 +1,55 @@
+title: Token Theft and Impersonation
+id: a3b4c5d6-e7f8-9012-abcd-012345678901
+status: stable
+description: Detects token theft, session hijacking, OAuth abuse, and impersonation attacks targeting authentication tokens and session cookies.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1528/
+tags:
+  - attack.credential_access
+  - attack.t1528
+logsource:
+  category: application
+  product: web
+detection:
+  keywords:
+    - "token theft"
+    - "token stolen"
+    - "session hijack"
+    - "session stolen"
+    - "cookie theft"
+    - "cookie stolen"
+    - "OAuth abuse"
+    - "OAuth token"
+    - "access_token"
+    - "refresh_token"
+    - "bearer token"
+    - "JWT manipulation"
+    - "JWT forgery"
+    - "alg:none"
+    - "algorithm none"
+    - "none algorithm"
+    - "SAML injection"
+    - "SAML forgery"
+    - "XML signature wrapping"
+    - "XSW attack"
+    - "replay token"
+    - "token replay"
+    - "stolen session"
+    - "impersonation"
+    - "privilege abuse"
+    - "account takeover"
+    - "ATO"
+    - "credential reuse"
+    - "password reuse"
+    - "credential stuffing"
+    - "account compromise"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: critical
+falsepositives:
+  - Legitimate token refresh operations
+  - Security testing

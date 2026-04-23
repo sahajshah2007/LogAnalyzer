@@ -1,0 +1,51 @@
+title: LDAP Injection and Directory Service Attack
+id: d6e7f8a9-b0c1-2345-defa-456789012345
+status: stable
+description: Detects LDAP injection attempts and unauthorized directory service enumeration.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1087/002/
+tags:
+  - attack.discovery
+  - attack.t1087.002
+logsource:
+  category: application
+  product: ldap
+detection:
+  keywords:
+    - ")(uid=*"
+    - ")(cn=*"
+    - "*)(uid=*"
+    - "*(|(uid=*"
+    - "ldap injection"
+    - "LDAP injection"
+    - "ldapsearch"
+    - "ldapadd"
+    - "ldapmodify"
+    - "ldapdelete"
+    - "objectClass=*"
+    - "cn=admin"
+    - "cn=root"
+    - "dc=admin"
+    - "userPassword"
+    - "shadowPassword"
+    - "ntPassword"
+    - "lmPassword"
+    - "unicodePwd"
+    - "memberOf"
+    - "adminCount=1"
+    - "msDS-AllowedToDelegateTo"
+    - "msDS-GroupMSAMembership"
+    - "BloodHound"
+    - "SharpHound"
+    - "ldapdomaindump"
+    - "windapsearch"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: high
+falsepositives:
+  - Legitimate LDAP administration
+  - Directory service monitoring

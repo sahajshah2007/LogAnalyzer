@@ -1,0 +1,58 @@
+title: Command Injection Attack
+id: c5d6e7f8-a9b0-1234-cdef-345678901234
+status: stable
+description: Detects OS command injection attempts in web requests and application logs.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1059/
+  - https://owasp.org/www-community/attacks/Command_Injection
+tags:
+  - attack.execution
+  - attack.t1059
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - ";id"
+    - ";whoami"
+    - ";cat /etc"
+    - ";ls -la"
+    - "|id"
+    - "|whoami"
+    - "|cat /etc"
+    - "`id`"
+    - "`whoami`"
+    - "$(id)"
+    - "$(whoami)"
+    - "$(cat /etc/passwd)"
+    - "&& id"
+    - "&& whoami"
+    - "|| id"
+    - "|| whoami"
+    - "%0aid"
+    - "%0awhoami"
+    - "%0a/bin/sh"
+    - "%0a/bin/bash"
+    - "cmd=id"
+    - "cmd=whoami"
+    - "exec=id"
+    - "exec=whoami"
+    - "ping -c 1"
+    - "sleep 5"
+    - "sleep 10"
+    - "/bin/sh -c"
+    - "/bin/bash -c"
+    - "system(\"id"
+    - "system('id"
+    - "passthru(\"id"
+    - "shell_exec(\"id"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+level: critical
+falsepositives:
+  - Legitimate shell commands in application logs
+  - Security scanners

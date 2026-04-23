@@ -1,0 +1,45 @@
+title: Persistence via Startup Files or Boot Configuration
+id: c3d4e5f6-a7b8-9012-cdef-123456789012
+status: stable
+description: Detects modifications to startup files, boot loaders, and init systems used to establish persistence.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1037/
+tags:
+  - attack.persistence
+  - attack.t1037
+logsource:
+  category: linux
+  product: file_event
+detection:
+  keywords:
+    - "/etc/rc.local"
+    - "/etc/init.d/"
+    - "/etc/systemd/system/"
+    - "/usr/lib/systemd/system/"
+    - "/lib/systemd/system/"
+    - ".service created"
+    - ".timer created"
+    - "systemd service"
+    - "/boot/grub"
+    - "/boot/grub2"
+    - "grub.cfg"
+    - "grubenv"
+    - "/etc/ld.so.preload"
+    - "LD_PRELOAD"
+    - "LD_LIBRARY_PATH"
+    - "/etc/environment"
+    - "~/.xinitrc"
+    - "~/.xsession"
+    - "/etc/X11/xinit"
+    - "GNOME autostart"
+    - "KDE autostart"
+  condition: keywords
+fields:
+  - user
+  - file_path
+level: high
+falsepositives:
+  - Legitimate software installation
+  - System administrators configuring services

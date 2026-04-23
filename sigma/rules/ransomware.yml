@@ -1,0 +1,59 @@
+title: Ransomware Activity Detection
+id: c9d0e1f2-a3b4-5678-cdef-789012345678
+status: stable
+description: Detects ransomware indicators including mass file encryption, ransom notes, shadow copy deletion, and known ransomware tools.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1486/
+tags:
+  - attack.impact
+  - attack.t1486
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "ransomware"
+    - "YOUR_FILES_ARE_ENCRYPTED"
+    - "HOW_TO_DECRYPT"
+    - "DECRYPT_INSTRUCTIONS"
+    - "README_FOR_DECRYPT"
+    - "RECOVERY_KEY"
+    - "ransom note"
+    - ".locked"
+    - ".encrypted"
+    - ".crypted"
+    - ".crypt"
+    - ".enc"
+    - ".rnsmwr"
+    - "wannacry"
+    - "WannaCry"
+    - "petya"
+    - "notpetya"
+    - "ryuk"
+    - "revil"
+    - "sodinokibi"
+    - "lockbit"
+    - "conti"
+    - "darkside"
+    - "blackcat"
+    - "alphv"
+    - "vssadmin delete shadows"
+    - "wmic shadowcopy delete"
+    - "bcdedit /set recoveryenabled no"
+    - "wbadmin delete catalog"
+    - "openssl.*-aes"
+    - "openssl.*-des"
+    - "gpg --encrypt"
+    - "gpg -e "
+    - "find.*-exec.*chmod"
+    - "chmod 000"
+  condition: keywords
+fields:
+  - user
+  - process
+level: critical
+falsepositives:
+  - Legitimate file encryption tools
+  - Backup software using encryption

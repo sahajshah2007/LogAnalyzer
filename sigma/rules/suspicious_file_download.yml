@@ -1,0 +1,66 @@
+title: Suspicious File Download and Staging
+id: c9d0e1f2-a3b4-5678-cdef-678901234567
+status: stable
+description: Detects suspicious file downloads, remote payload staging, and living-off-the-land binary (LOLBin) abuse for downloading files.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1105/
+tags:
+  - attack.command_and_control
+  - attack.t1105
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "wget http"
+    - "wget https"
+    - "wget ftp"
+    - "curl http"
+    - "curl https"
+    - "curl ftp"
+    - "curl -O "
+    - "curl -o "
+    - "curl -s http"
+    - "curl -sL"
+    - "curl -fsSL"
+    - "fetch http"
+    - "fetch https"
+    - "lwp-download"
+    - "python.*urllib"
+    - "python.*requests.get"
+    - "python.*urlretrieve"
+    - "perl.*LWP"
+    - "ruby.*open-uri"
+    - "ruby.*Net::HTTP"
+    - "php.*file_get_contents"
+    - "php.*curl_exec"
+    - "nc -w.*<"
+    - "ncat.*<"
+    - "tftp -g"
+    - "tftp get"
+    - "ftp -n"
+    - "scp.*@.*:"
+    - "rsync.*@.*:"
+    - "git clone"
+    - "svn checkout"
+    - "pip download"
+    - "npm install"
+    - "gem install"
+    - "go get"
+    - "cargo install"
+    - "apt-get install"
+    - "yum install"
+    - "dnf install"
+    - "zypper install"
+    - "pacman -S"
+    - "brew install"
+  condition: keywords
+fields:
+  - user
+  - process
+level: low
+falsepositives:
+  - Legitimate software installation
+  - Package management

@@ -1,0 +1,56 @@
+title: Phishing and Social Engineering Indicators
+id: e3f4a5b6-c7d8-9012-efab-123456789012
+status: stable
+description: Detects phishing indicators in email logs, web proxy logs, and endpoint activity including malicious attachments and credential harvesting.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1566/
+tags:
+  - attack.initial_access
+  - attack.t1566
+logsource:
+  category: application
+  product: mail
+detection:
+  keywords:
+    - "phishing"
+    - "spear phishing"
+    - "spearphishing"
+    - "credential harvest"
+    - "credential phishing"
+    - "malicious attachment"
+    - "suspicious attachment"
+    - ".exe attachment"
+    - ".js attachment"
+    - ".vbs attachment"
+    - ".hta attachment"
+    - ".bat attachment"
+    - ".cmd attachment"
+    - ".ps1 attachment"
+    - "macro enabled"
+    - "enable macros"
+    - "enable content"
+    - "invoice.exe"
+    - "payment.exe"
+    - "document.exe"
+    - "resume.exe"
+    - "urgent.exe"
+    - "gophish"
+    - "evilginx"
+    - "evilginx2"
+    - "modlishka"
+    - "muraena"
+    - "king-phisher"
+    - "social-engineer"
+    - "setoolkit"
+    - "beef"
+    - "BeEF"
+  condition: keywords
+fields:
+  - source_ip
+  - user
+level: high
+falsepositives:
+  - Security awareness training
+  - Authorized phishing simulations

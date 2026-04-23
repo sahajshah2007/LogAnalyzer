@@ -1,0 +1,54 @@
+title: DNS-Based Data Exfiltration
+id: f2a3b4c5-d6e7-8901-fabc-901234567890
+status: stable
+description: Detects data exfiltration via DNS queries including DNS tunneling, long subdomain queries, and high-frequency DNS requests to unusual domains.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1048/003/
+tags:
+  - attack.exfiltration
+  - attack.t1048.003
+logsource:
+  category: linux
+  product: dns
+detection:
+  keywords:
+    - "dnscat"
+    - "dnscat2"
+    - "iodine"
+    - "dns2tcp"
+    - "dnstunnel"
+    - "dns tunnel"
+    - "DNS tunnel"
+    - "TXT record exfil"
+    - "base64.*dns"
+    - "dns.*base64"
+    - "long subdomain"
+    - "subdomain exfil"
+    - "dns exfil"
+    - "DNS exfil"
+    - "NXDOMAIN flood"
+    - "dns flood"
+    - "DNS flood"
+    - "dns amplification"
+    - "DNS amplification"
+    - "ANY query"
+    - "CHAOS query"
+    - "dns rebinding"
+    - "DNS rebinding"
+    - "fast flux"
+    - "domain generation"
+    - "DGA"
+    - "algorithmically generated"
+    - "suspicious TXT"
+    - "suspicious CNAME"
+    - "suspicious MX"
+  condition: keywords
+fields:
+  - source_ip
+  - dest_ip
+level: high
+falsepositives:
+  - Legitimate DNS debugging
+  - DNS monitoring tools

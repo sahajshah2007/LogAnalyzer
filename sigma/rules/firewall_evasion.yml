@@ -1,0 +1,51 @@
+title: Firewall and Security Control Evasion
+id: c1d2e3f4-a5b6-7890-cdef-901234567890
+status: stable
+description: Detects attempts to disable, bypass, or modify firewall rules and security controls.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1562/004/
+tags:
+  - attack.defense_evasion
+  - attack.t1562.004
+logsource:
+  category: linux
+  product: auth
+detection:
+  keywords:
+    - "iptables -F"
+    - "iptables --flush"
+    - "iptables -X"
+    - "iptables -P INPUT ACCEPT"
+    - "iptables -P OUTPUT ACCEPT"
+    - "iptables -P FORWARD ACCEPT"
+    - "ip6tables -F"
+    - "ufw disable"
+    - "ufw reset"
+    - "ufw --force reset"
+    - "systemctl stop ufw"
+    - "systemctl disable ufw"
+    - "systemctl stop firewalld"
+    - "systemctl disable firewalld"
+    - "firewall-cmd --panic-on"
+    - "setenforce 0"
+    - "setenforce Permissive"
+    - "sestatus"
+    - "getenforce"
+    - "apparmor_parser -R"
+    - "aa-disable"
+    - "systemctl stop apparmor"
+    - "systemctl disable apparmor"
+    - "nft flush ruleset"
+    - "nft delete table"
+    - "pfctl -d"
+    - "ipfw flush"
+  condition: keywords
+fields:
+  - user
+  - source_ip
+level: critical
+falsepositives:
+  - Authorized firewall maintenance
+  - System administrators

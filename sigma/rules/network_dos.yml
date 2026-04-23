@@ -1,0 +1,53 @@
+title: Denial of Service Attack Indicators
+id: f6a7b8c9-d0e1-2345-fabc-456789012345
+status: stable
+description: Detects indicators of denial of service attacks including flood attacks, amplification, and resource exhaustion.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1498/
+tags:
+  - attack.impact
+  - attack.t1498
+logsource:
+  category: linux
+  product: network
+detection:
+  keywords:
+    - "SYN flood"
+    - "syn flood"
+    - "UDP flood"
+    - "udp flood"
+    - "ICMP flood"
+    - "icmp flood"
+    - "DDoS"
+    - "ddos"
+    - "connection flood"
+    - "request flood"
+    - "slowloris"
+    - "slow loris"
+    - "rudy attack"
+    - "http flood"
+    - "HTTP flood"
+    - "amplification attack"
+    - "reflection attack"
+    - "NTP amplification"
+    - "DNS amplification"
+    - "SSDP amplification"
+    - "memcached amplification"
+    - "resource exhaustion"
+    - "too many connections"
+    - "connection limit reached"
+    - "max_connections"
+    - "hping3"
+    - "hping"
+    - "loic"
+    - "hoic"
+    - "goldeneye"
+  condition: keywords
+fields:
+  - source_ip
+level: high
+falsepositives:
+  - High-traffic legitimate services
+  - Load testing tools

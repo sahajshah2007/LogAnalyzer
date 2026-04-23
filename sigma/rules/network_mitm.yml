@@ -1,0 +1,52 @@
+title: Man-in-the-Middle Attack Indicators
+id: a7b8c9d0-e1f2-3456-abcd-567890123456
+status: stable
+description: Detects ARP spoofing, DNS poisoning, SSL stripping, and other MITM attack techniques.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1557/
+tags:
+  - attack.credential_access
+  - attack.t1557
+logsource:
+  category: linux
+  product: network
+detection:
+  keywords:
+    - "ARP spoofing"
+    - "arp spoof"
+    - "arp poison"
+    - "arpspoof"
+    - "arping"
+    - "gratuitous ARP"
+    - "duplicate IP"
+    - "IP conflict"
+    - "MAC conflict"
+    - "DNS spoofing"
+    - "DNS poisoning"
+    - "dns spoof"
+    - "dnsspoof"
+    - "SSL stripping"
+    - "ssl strip"
+    - "sslstrip"
+    - "HTTPS downgrade"
+    - "certificate mismatch"
+    - "invalid certificate"
+    - "self-signed certificate"
+    - "ettercap"
+    - "bettercap"
+    - "mitmproxy"
+    - "mitmf"
+    - "responder"
+    - "LLMNR poisoning"
+    - "NBT-NS poisoning"
+    - "WPAD abuse"
+  condition: keywords
+fields:
+  - source_ip
+  - dest_ip
+level: critical
+falsepositives:
+  - Authorized penetration testing
+  - Network debugging tools

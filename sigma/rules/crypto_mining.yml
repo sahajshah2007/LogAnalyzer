@@ -1,0 +1,57 @@
+title: Cryptocurrency Mining Activity
+id: e7f8a9b0-c1d2-3456-efab-567890123456
+status: stable
+description: Detects cryptocurrency mining software, mining pool connections, and resource hijacking for cryptomining.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1496/
+tags:
+  - attack.impact
+  - attack.t1496
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "xmrig"
+    - "minerd"
+    - "cpuminer"
+    - "cgminer"
+    - "bfgminer"
+    - "ethminer"
+    - "coinhive"
+    - "cryptonight"
+    - "stratum+tcp"
+    - "stratum+ssl"
+    - "pool.minexmr.com"
+    - "xmrpool"
+    - "moneropool"
+    - "nanopool"
+    - "f2pool"
+    - "nicehash"
+    - "mining pool"
+    - "hashrate"
+    - "hash rate"
+    - "miner.start"
+    - "CoinHive"
+    - "Coinhive"
+    - "cryptoloot"
+    - "deepminer"
+    - "webminer"
+    - "--donate-level"
+    - "-o stratum"
+    - "mining software"
+    - "coin miner"
+    - "crypto miner"
+    - "monero"
+    - "zcash"
+    - "nicehash"
+  condition: keywords
+fields:
+  - user
+  - process
+level: high
+falsepositives:
+  - Authorized cryptocurrency mining operations
+  - Blockchain development environments

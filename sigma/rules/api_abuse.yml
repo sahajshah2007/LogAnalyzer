@@ -1,0 +1,62 @@
+title: API Abuse and Unauthorized API Access
+id: f0a1b2c3-d4e5-6789-fabc-890123456789
+status: stable
+description: Detects API abuse patterns including excessive requests, unauthorized endpoints, API key theft, and REST/GraphQL exploitation.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1190/
+tags:
+  - attack.initial_access
+  - attack.t1190
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - "401 Unauthorized"
+    - "403 Forbidden"
+    - "429 Too Many Requests"
+    - "rate limit"
+    - "rate limited"
+    - "API key invalid"
+    - "invalid API key"
+    - "API key expired"
+    - "token expired"
+    - "token invalid"
+    - "JWT invalid"
+    - "JWT expired"
+    - "signature verification failed"
+    - "introspection"
+    - "__schema"
+    - "__type"
+    - "graphql introspection"
+    - "IDOR"
+    - "object reference"
+    - "horizontal privilege"
+    - "vertical privilege"
+    - "mass assignment"
+    - "parameter pollution"
+    - "HTTP parameter"
+    - "swagger.json"
+    - "openapi.json"
+    - "api-docs"
+    - "/v1/admin"
+    - "/v2/admin"
+    - "/api/admin"
+    - "/api/internal"
+    - "/api/debug"
+    - "/api/test"
+    - "/.well-known"
+    - "/actuator"
+    - "/actuator/env"
+    - "/actuator/heapdump"
+    - "/actuator/shutdown"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+level: medium
+falsepositives:
+  - Legitimate API clients with expired tokens
+  - API documentation access

@@ -1,0 +1,104 @@
+title: Windows-Specific Attack Techniques
+id: a1b2c3d4-e5f6-7890-abcd-890123456789
+status: stable
+description: Detects Windows-specific attack techniques including WMI abuse, PowerShell exploitation, registry manipulation, and Windows credential attacks.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1047/
+tags:
+  - attack.execution
+  - attack.t1047
+logsource:
+  category: windows
+  product: security
+detection:
+  keywords:
+    - "wmic"
+    - "wmiexec"
+    - "wmiprvse"
+    - "WMI subscription"
+    - "powershell -nop"
+    - "powershell -noprofile"
+    - "powershell -w hidden"
+    - "powershell -windowstyle hidden"
+    - "powershell -enc"
+    - "powershell -encodedcommand"
+    - "powershell -exec bypass"
+    - "powershell -executionpolicy bypass"
+    - "IEX"
+    - "Invoke-Expression"
+    - "Invoke-Mimikatz"
+    - "Invoke-Shellcode"
+    - "Invoke-ReflectivePEInjection"
+    - "reg add"
+    - "reg delete"
+    - "reg export"
+    - "reg save"
+    - "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    - "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    - "RunOnce"
+    - "RunServices"
+    - "net user /add"
+    - "net localgroup administrators"
+    - "net share"
+    - "net use"
+    - "sc create"
+    - "sc start"
+    - "sc config"
+    - "schtasks /create"
+    - "schtasks /run"
+    - "at.exe"
+    - "mshta"
+    - "regsvr32"
+    - "regsvcs"
+    - "regasm"
+    - "rundll32"
+    - "certutil -decode"
+    - "certutil -urlcache"
+    - "bitsadmin"
+    - "wscript"
+    - "cscript"
+    - "msiexec /q"
+    - "installutil"
+    - "odbcconf"
+    - "appsync"
+    - "mavinject"
+    - "eventvwr"
+    - "fodhelper"
+    - "sdclt"
+    - "cmstp"
+    - "dnscmd"
+    - "esentutl"
+    - "expand"
+    - "extrac32"
+    - "findstr"
+    - "gpscript"
+    - "hh.exe"
+    - "infdefaultinstall"
+    - "makecab"
+    - "msdeploy"
+    - "msdt"
+    - "msiexec"
+    - "pcalua"
+    - "pcwrun"
+    - "presentationhost"
+    - "replace.exe"
+    - "rpcping"
+    - "runscripthelper"
+    - "syncappvpublishingserver"
+    - "ttdinject"
+    - "tttracer"
+    - "vbc.exe"
+    - "wab.exe"
+    - "winrm"
+    - "winrs"
+    - "xwizard"
+  condition: keywords
+fields:
+  - user
+  - process
+level: high
+falsepositives:
+  - Legitimate Windows administration
+  - Software deployment tools

@@ -1,0 +1,54 @@
+title: Insider Threat and Data Staging Indicators
+id: a5b6c7d8-e9f0-1234-abcd-345678901234
+status: stable
+description: Detects insider threat behaviors including bulk data access, unusual working hours activity, data staging, and policy violations.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1074/
+tags:
+  - attack.collection
+  - attack.t1074
+logsource:
+  category: linux
+  product: audit
+detection:
+  keywords:
+    - "bulk download"
+    - "mass download"
+    - "large file transfer"
+    - "data staging"
+    - "data hoarding"
+    - "zip -r"
+    - "tar -czf"
+    - "tar -cjf"
+    - "7z a "
+    - "rar a "
+    - "find.*-exec cp"
+    - "find.*-exec mv"
+    - "rsync -a"
+    - "rsync -r"
+    - "cp -r /home"
+    - "cp -r /var"
+    - "cp -r /etc"
+    - "dd if="
+    - "dd of="
+    - "disk image"
+    - "volume shadow"
+    - "ntbackup"
+    - "wbadmin"
+    - "robocopy"
+    - "xcopy /s"
+    - "after hours"
+    - "unusual time"
+    - "policy violation"
+    - "DLP alert"
+    - "data loss"
+  condition: keywords
+fields:
+  - user
+  - source_ip
+level: high
+falsepositives:
+  - Authorized backup operations
+  - Data migration projects

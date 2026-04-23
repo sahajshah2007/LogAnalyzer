@@ -1,0 +1,50 @@
+title: Supply Chain and Dependency Attack Indicators
+id: f4a5b6c7-d8e9-0123-fabc-234567890123
+status: stable
+description: Detects indicators of supply chain attacks including typosquatting packages, dependency confusion, and malicious package installation.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1195/
+tags:
+  - attack.initial_access
+  - attack.t1195
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "dependency confusion"
+    - "typosquatting"
+    - "malicious package"
+    - "malicious npm"
+    - "malicious pip"
+    - "malicious gem"
+    - "postinstall script"
+    - "preinstall script"
+    - "install script"
+    - "npm install.*--unsafe-perm"
+    - "pip install.*--trusted-host"
+    - "pip install.*--index-url"
+    - "pip install.*--extra-index-url"
+    - "gem install.*--source"
+    - "curl.*requirements.txt"
+    - "wget.*requirements.txt"
+    - "setup.py install"
+    - "python setup.py"
+    - "node-gyp"
+    - "binding.gyp"
+    - "package.json.*scripts"
+    - "composer install"
+    - "cargo install"
+    - "go get"
+    - "maven install"
+    - "gradle build"
+  condition: keywords
+fields:
+  - user
+  - process
+level: medium
+falsepositives:
+  - Legitimate package installation
+  - CI/CD pipelines

@@ -1,0 +1,56 @@
+title: Suspicious Archive and Compression Activity
+id: b4c5d6e7-f8a9-0123-bcde-123456789013
+status: stable
+description: Detects suspicious use of archive and compression tools for data collection, staging, or hiding malicious files.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1560/
+tags:
+  - attack.collection
+  - attack.t1560
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "zip -P"
+    - "zip --password"
+    - "zip -e"
+    - "7z a -p"
+    - "7z a -mhe"
+    - "rar a -hp"
+    - "gpg -c"
+    - "gpg --symmetric"
+    - "openssl enc -aes"
+    - "openssl enc -des"
+    - "tar -czf /tmp"
+    - "tar -czf /dev/shm"
+    - "tar -czf /run"
+    - "zip /tmp"
+    - "zip /dev/shm"
+    - "7z /tmp"
+    - "7z /dev/shm"
+    - "archive /etc"
+    - "archive /home"
+    - "archive /var"
+    - "compress /etc"
+    - "compress /home"
+    - "compress /var"
+    - "tar.*passwd"
+    - "tar.*shadow"
+    - "tar.*ssh"
+    - "zip.*passwd"
+    - "zip.*shadow"
+    - "zip.*ssh"
+    - "7z.*passwd"
+    - "7z.*shadow"
+    - "7z.*ssh"
+  condition: keywords
+fields:
+  - user
+  - process
+level: high
+falsepositives:
+  - Legitimate backup operations
+  - Authorized data archiving

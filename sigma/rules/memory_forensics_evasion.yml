@@ -1,0 +1,65 @@
+title: Memory Forensics Evasion and Anti-Analysis
+id: c5d6e7f8-a9b0-1234-cdef-234567890124
+status: stable
+description: Detects anti-forensics, anti-debugging, anti-VM, and memory evasion techniques used by malware to avoid analysis.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1497/
+tags:
+  - attack.defense_evasion
+  - attack.t1497
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "anti-debug"
+    - "antidebug"
+    - "anti-vm"
+    - "antivm"
+    - "anti-sandbox"
+    - "antisandbox"
+    - "anti-analysis"
+    - "IsDebuggerPresent"
+    - "CheckRemoteDebuggerPresent"
+    - "NtQueryInformationProcess"
+    - "RDTSC"
+    - "CPUID"
+    - "vmware"
+    - "virtualbox"
+    - "vbox"
+    - "qemu"
+    - "xen"
+    - "hyper-v"
+    - "VMware"
+    - "VirtualBox"
+    - "VBOX"
+    - "QEMU"
+    - "Xen"
+    - "Hyper-V"
+    - "sandbox"
+    - "cuckoo"
+    - "any.run"
+    - "hybrid-analysis"
+    - "virustotal"
+    - "sleep 100"
+    - "sleep 1000"
+    - "time.sleep(100"
+    - "time.sleep(1000"
+    - "fork bomb"
+    - "memory scrubbing"
+    - "heap spray"
+    - "NOP sled"
+    - "polymorphic"
+    - "metamorphic"
+    - "self-modifying"
+    - "code mutation"
+  condition: keywords
+fields:
+  - user
+  - process
+level: high
+falsepositives:
+  - Malware analysis environments
+  - Security research

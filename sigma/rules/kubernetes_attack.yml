@@ -1,0 +1,68 @@
+title: Kubernetes and Cloud-Native Attack
+id: d0e1f2a3-b4c5-6789-defa-789012345678
+status: stable
+description: Detects Kubernetes-specific attacks including RBAC abuse, service account token theft, etcd access, and cluster-level privilege escalation.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1613/
+tags:
+  - attack.discovery
+  - attack.t1613
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "kubectl get secrets"
+    - "kubectl get secret"
+    - "kubectl describe secret"
+    - "kubectl exec -it"
+    - "kubectl exec --"
+    - "kubectl cp"
+    - "kubectl port-forward"
+    - "kubectl proxy"
+    - "kubectl run --rm"
+    - "kubectl create clusterrolebinding"
+    - "kubectl create rolebinding"
+    - "kubectl patch"
+    - "kubectl delete"
+    - "kubectl apply -f"
+    - "kubectl auth can-i"
+    - "kubectl auth reconcile"
+    - "serviceaccount"
+    - "service account token"
+    - "/var/run/secrets/kubernetes.io"
+    - "KUBERNETES_SERVICE_HOST"
+    - "KUBERNETES_SERVICE_PORT"
+    - "etcd"
+    - "etcdctl"
+    - "etcd backup"
+    - "etcd snapshot"
+    - "kube-apiserver"
+    - "kube-controller"
+    - "kube-scheduler"
+    - "kubelet"
+    - "kube-proxy"
+    - "cluster-admin"
+    - "system:masters"
+    - "system:cluster-admin"
+    - "privileged pod"
+    - "hostPath volume"
+    - "emptyDir"
+    - "nodeSelector"
+    - "tolerations"
+    - "helm install"
+    - "helm upgrade"
+    - "helm delete"
+    - "kustomize"
+    - "argocd"
+    - "flux"
+  condition: keywords
+fields:
+  - user
+  - process
+level: high
+falsepositives:
+  - Legitimate Kubernetes administration
+  - DevOps pipelines

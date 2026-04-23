@@ -1,0 +1,55 @@
+title: Network Protocol Abuse and Spoofing
+id: f6a7b8c9-d0e1-2345-fabc-345678901234
+status: stable
+description: Detects abuse of network protocols including IP spoofing, BGP hijacking, DHCP starvation, and rogue DHCP/DNS servers.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1557/002/
+tags:
+  - attack.credential_access
+  - attack.t1557.002
+logsource:
+  category: linux
+  product: network
+detection:
+  keywords:
+    - "IP spoofing"
+    - "ip spoof"
+    - "source IP spoofed"
+    - "spoofed packet"
+    - "BGP hijack"
+    - "BGP hijacking"
+    - "route hijack"
+    - "prefix hijack"
+    - "DHCP starvation"
+    - "dhcp starvation"
+    - "rogue DHCP"
+    - "rogue dhcp"
+    - "DHCP exhaustion"
+    - "dhcpstarv"
+    - "yersinia"
+    - "Yersinia"
+    - "rogue DNS"
+    - "DNS hijack"
+    - "dns hijack"
+    - "ICMP redirect"
+    - "icmp redirect"
+    - "TCP reset attack"
+    - "RST injection"
+    - "session hijack"
+    - "session fixation"
+    - "cookie theft"
+    - "cookie hijack"
+    - "token theft"
+    - "token hijack"
+    - "replay attack"
+    - "replay detected"
+  condition: keywords
+fields:
+  - source_ip
+  - dest_ip
+level: high
+falsepositives:
+  - Network testing tools
+  - Authorized penetration testing

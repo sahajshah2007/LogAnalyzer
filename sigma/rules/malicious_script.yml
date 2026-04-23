@@ -1,0 +1,63 @@
+title: Malicious Script Execution
+id: a7b8c9d0-e1f2-3456-abcd-456789012345
+status: stable
+description: Detects execution of malicious scripts including PowerShell cradles, bash one-liners, Python stagers, and script-based payloads.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1059/
+tags:
+  - attack.execution
+  - attack.t1059
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "python -c 'import"
+    - "python3 -c 'import"
+    - "python -c \"import"
+    - "python3 -c \"import"
+    - "python.*socket"
+    - "python.*subprocess"
+    - "python.*os.system"
+    - "python.*exec("
+    - "perl -e 'use"
+    - "perl -e \"use"
+    - "perl.*socket"
+    - "ruby -e 'require"
+    - "ruby -e \"require"
+    - "ruby.*socket"
+    - "php -r 'system"
+    - "php -r \"system"
+    - "php.*exec("
+    - "node -e 'require"
+    - "node -e \"require"
+    - "lua -e"
+    - "tclsh"
+    - "expect -c"
+    - "awk 'BEGIN{system"
+    - "awk \"BEGIN{system"
+    - "bash -c 'bash"
+    - "sh -c 'sh"
+    - "sh -i"
+    - "zsh -c"
+    - "ksh -c"
+    - "dash -c"
+    - "busybox sh"
+    - "busybox nc"
+    - "busybox wget"
+    - "curl.*exec"
+    - "wget.*exec"
+    - "fetch.*exec"
+    - "lwp-download"
+    - "GET http"
+    - "POST http"
+  condition: keywords
+fields:
+  - user
+  - process
+level: critical
+falsepositives:
+  - Legitimate scripting in development environments
+  - CI/CD pipelines

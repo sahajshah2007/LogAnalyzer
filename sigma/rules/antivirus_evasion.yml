@@ -1,0 +1,68 @@
+title: Antivirus and EDR Evasion Techniques
+id: e1f2a3b4-c5d6-7890-efab-890123456789
+status: stable
+description: Detects attempts to disable, bypass, or evade antivirus software, EDR agents, and security monitoring tools.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+tags:
+  - attack.defense_evasion
+  - attack.t1562.001
+logsource:
+  category: linux
+  product: process_creation
+detection:
+  keywords:
+    - "systemctl stop clamav"
+    - "systemctl disable clamav"
+    - "systemctl stop ossec"
+    - "systemctl disable ossec"
+    - "systemctl stop wazuh"
+    - "systemctl disable wazuh"
+    - "systemctl stop auditd"
+    - "systemctl disable auditd"
+    - "systemctl stop syslog"
+    - "systemctl disable syslog"
+    - "systemctl stop rsyslog"
+    - "systemctl disable rsyslog"
+    - "systemctl stop filebeat"
+    - "systemctl disable filebeat"
+    - "systemctl stop osquery"
+    - "systemctl disable osquery"
+    - "pkill clamav"
+    - "pkill ossec"
+    - "pkill wazuh"
+    - "pkill auditd"
+    - "pkill syslog"
+    - "pkill filebeat"
+    - "pkill osquery"
+    - "kill -9.*clamav"
+    - "kill -9.*ossec"
+    - "kill -9.*wazuh"
+    - "kill -9.*auditd"
+    - "rm.*clamav"
+    - "rm.*ossec"
+    - "rm.*wazuh"
+    - "chmod 000.*clamav"
+    - "chmod 000.*ossec"
+    - "chmod 000.*wazuh"
+    - "timestomp"
+    - "touch -t"
+    - "touch -d"
+    - "touch --date"
+    - "debugfs"
+    - "tune2fs"
+    - "chattr +i"
+    - "chattr -i"
+    - "lsattr"
+    - "setfattr"
+    - "getfattr"
+  condition: keywords
+fields:
+  - user
+  - process
+level: critical
+falsepositives:
+  - Authorized security tool maintenance
+  - System administrators

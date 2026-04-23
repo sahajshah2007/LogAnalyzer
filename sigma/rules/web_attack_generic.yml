@@ -1,0 +1,56 @@
+title: Generic Web Application Attack
+id: b4c5d6e7-f8a9-0123-bcde-234567890123
+status: stable
+description: Detects common web application attacks including SSRF, XXE, IDOR, open redirect, and HTTP request smuggling.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1190/
+tags:
+  - attack.initial_access
+  - attack.t1190
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - "file://"
+    - "dict://"
+    - "gopher://"
+    - "ftp://"
+    - "sftp://"
+    - "ldap://"
+    - "ldaps://"
+    - "tftp://"
+    - "netdoc://"
+    - "jar://"
+    - "<!ENTITY"
+    - "<!DOCTYPE"
+    - "SYSTEM \"file"
+    - "SYSTEM 'file"
+    - "PUBLIC \"-//"
+    - "xxe"
+    - "xml external entity"
+    - "Content-Length: 0"
+    - "Transfer-Encoding: chunked"
+    - "Transfer-Encoding: identity"
+    - "HTTP/1.1\r\nHost"
+    - "request smuggling"
+    - "Host: localhost"
+    - "Host: 127.0.0.1"
+    - "X-Forwarded-For: 127.0.0.1"
+    - "X-Real-IP: 127.0.0.1"
+    - "X-Originating-IP: 127.0.0.1"
+    - "open redirect"
+    - "url=http"
+    - "redirect=http"
+    - "next=http"
+    - "return=http"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+level: high
+falsepositives:
+  - Legitimate API usage with file URIs
+  - Web vulnerability scanners used by security teams

@@ -1,0 +1,54 @@
+title: Account Creation and Manipulation
+id: b0c1d2e3-f4a5-6789-bcde-890123456789
+status: stable
+description: Detects unauthorized account creation, privilege modification, and account manipulation activities.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1136/
+tags:
+  - attack.persistence
+  - attack.t1136
+logsource:
+  category: linux
+  product: auth
+detection:
+  keywords:
+    - "useradd"
+    - "adduser"
+    - "usermod"
+    - "userdel"
+    - "groupadd"
+    - "groupmod"
+    - "groupdel"
+    - "passwd "
+    - "chpasswd"
+    - "new user"
+    - "new group"
+    - "account created"
+    - "account deleted"
+    - "account modified"
+    - "added to group"
+    - "removed from group"
+    - "sudo group"
+    - "wheel group"
+    - "admin group"
+    - "visudo"
+    - "gpasswd"
+    - "chage"
+    - "usermod -aG sudo"
+    - "usermod -aG wheel"
+    - "usermod -aG admin"
+    - "uid=0"
+    - "gid=0"
+    - "home directory"
+    - "shell changed"
+    - "login shell"
+  condition: keywords
+fields:
+  - user
+  - source_ip
+level: high
+falsepositives:
+  - Legitimate user management by administrators
+  - Automated provisioning systems

@@ -27,14 +27,16 @@ detection:
     - "curl -T"
     - "curl --upload"
     - "wget --post-file"
-    - "nc.*< "
-    - "tar.*|.*nc"
-    - "openssl.*s_client"
     - "xxd"
-    - "base64.*>"
     - "exfil"
     - "megacmd"
     - "rclone copy"
+    - "nc -w"
+    - "nc -q"
+    - "openssl s_client"
+    - "base64 -w 0"
+    - "tar czf -"
+    - "tar -czf -"
   condition: keywords
 fields:
   - source_ip

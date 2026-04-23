@@ -1,0 +1,79 @@
+title: Suspicious or Malicious User Agent
+id: d4e5f6a7-b8c9-0123-defa-123456789012
+status: stable
+description: Detects HTTP requests with suspicious, malicious, or tool-specific user agents commonly used in attacks and reconnaissance.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1595/
+tags:
+  - attack.reconnaissance
+  - attack.t1595
+logsource:
+  category: webserver
+  product: apache
+detection:
+  keywords:
+    - "sqlmap"
+    - "Sqlmap"
+    - "nikto"
+    - "Nikto"
+    - "nmap"
+    - "Nmap"
+    - "masscan"
+    - "zgrab"
+    - "ZGrab"
+    - "nuclei"
+    - "Nuclei"
+    - "dirbuster"
+    - "DirBuster"
+    - "gobuster"
+    - "wfuzz"
+    - "WFuzz"
+    - "hydra"
+    - "Hydra"
+    - "metasploit"
+    - "Metasploit"
+    - "msfconsole"
+    - "python-requests/2"
+    - "python-urllib"
+    - "Go-http-client/1"
+    - "Go-http-client/2"
+    - "Java/1."
+    - "curl/7"
+    - "Wget/1"
+    - "libwww-perl"
+    - "lwp-trivial"
+    - "Scrapy"
+    - "scrapy"
+    - "HeadlessChrome"
+    - "PhantomJS"
+    - "Selenium"
+    - "webdriver"
+    - "python-httpx"
+    - "aiohttp"
+    - "httpx"
+    - "Faraday"
+    - "OpenVAS"
+    - "Nessus"
+    - "Acunetix"
+    - "AppScan"
+    - "WebInspect"
+    - "Burp"
+    - "OWASP"
+    - "w3af"
+    - "skipfish"
+    - "arachni"
+    - "Arachni"
+    - "havij"
+    - "Havij"
+    - "pangolin"
+    - "Pangolin"
+  condition: keywords
+fields:
+  - source_ip
+  - http_url
+level: medium
+falsepositives:
+  - Authorized security testing
+  - Legitimate automation tools

@@ -1,0 +1,55 @@
+title: Email-Based Attack and Mail Server Abuse
+id: c7d8e9f0-a1b2-3456-cdef-567890123456
+status: stable
+description: Detects email-based attacks including spam relaying, mail server exploitation, and email header injection.
+author: Log analyzer
+date: 2026/04/01
+references:
+  - https://attack.mitre.org/techniques/T1566/001/
+tags:
+  - attack.initial_access
+  - attack.t1566.001
+logsource:
+  category: application
+  product: mail
+detection:
+  keywords:
+    - "open relay"
+    - "relay denied"
+    - "relay access denied"
+    - "spam detected"
+    - "spam score"
+    - "blacklisted"
+    - "RBL"
+    - "DNSBL"
+    - "SPF fail"
+    - "SPF softfail"
+    - "DKIM fail"
+    - "DMARC fail"
+    - "header injection"
+    - "email injection"
+    - "mail injection"
+    - "RCPT TO overflow"
+    - "MAIL FROM overflow"
+    - "EHLO overflow"
+    - "HELO overflow"
+    - "VRFY"
+    - "EXPN"
+    - "sendmail exploit"
+    - "postfix exploit"
+    - "exim exploit"
+    - "CVE.*mail"
+    - "CVE.*smtp"
+    - "CVE.*postfix"
+    - "CVE.*exim"
+    - "mail bomb"
+    - "email bomb"
+    - "bounce attack"
+    - "backscatter"
+  condition: keywords
+fields:
+  - source_ip
+level: high
+falsepositives:
+  - Legitimate mail server configuration issues
+  - Email delivery failures
