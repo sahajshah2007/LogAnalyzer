@@ -35,6 +35,7 @@ class LogBuffer:
         self.buffer = deque(maxlen=max_size)
         self.lock = threading.Lock()
         self.max_age = max_age_seconds
+        self.logger = logging.getLogger("LogBuffer")
         
     def add(self, log_entry: dict):
         """Add a log entry to the buffer"""
@@ -47,6 +48,7 @@ class LogBuffer:
         with self.lock:
             current_time = time.time()
             batch = []
+            stale_count = 0
             
             # Remove stale entries and collect batch
             while self.buffer and len(batch) < max_count:
@@ -54,13 +56,25 @@ class LogBuffer:
                 
                 # Skip if too old
                 if current_time - entry.get('buffered_at', 0) > self.max_age:
+                    stale_count += 1
                     continue
                     
                 # Remove internal tracking field
                 entry.pop('buffered_at', None)
                 batch.append(entry)
             
+            if stale_count > 0:
+                self.logger.warning(f"Dropped {stale_count} stale log entries (older than {self.max_age}s)")
+            
             return batch
+    
+    def requeue(self, entries: List[dict]):
+        """Put entries back at the front of the buffer after a failed send."""
+        with self.lock:
+            now = time.time()
+            for entry in reversed(entries):
+                entry['buffered_at'] = now
+                self.buffer.appendleft(entry)
     
     def size(self) -> int:
         """Get current buffer size"""
@@ -293,6 +307,9 @@ class LogForwarder:
                     self.logger.debug(f"Sent batch of {len(batch)} logs")
                 else:
                     self.stats['logs_failed'] += len(batch)
+                    # Re-queue failed batch so logs aren't permanently lost
+                    self.buffer.requeue(batch)
+                    self.logger.warning(f"Re-queued {len(batch)} logs after failed send")
                     
             except Exception as e:
                 self.logger.error(f"Error in forward loop: {e}")

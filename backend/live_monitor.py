@@ -33,13 +33,14 @@ class LiveLogSource(ABC):
 class JournalctlSource(LiveLogSource):
     """Monitor systemd/journalctl logs"""
 
-    def __init__(self, unit: Optional[str] = None, since: str = "10m"):
+    def __init__(self, unit: Optional[str] = None, since: str = "1 min ago"):
         """
         Initialize journalctl source.
 
         Args:
             unit: Specific systemd unit to monitor (e.g., 'sshd', 'apache2')
-            since: How far back to start (e.g., '10m', '1h', 'now')
+            since: How far back to start — must use journalctl syntax
+                   (e.g., '1 min ago', '10 min ago', '1 hour ago', 'now')
         """
         super().__init__("journalctl")
         self.unit = unit
@@ -55,7 +56,8 @@ class JournalctlSource(LiveLogSource):
 
     def stream(self) -> Generator[str, None, None]:
         """Stream logs from journalctl with follow mode, auto-retry on disconnect."""
-        cmd = ["journalctl", "--since", self.since, "--follow", "--output", "short"]
+        since = self._normalise_since(self.since)
+        cmd = ["journalctl", "--since", since, "--follow", "--output", "short"]
 
         if self.unit:
             cmd.extend(["--unit", self.unit])
@@ -96,6 +98,18 @@ class JournalctlSource(LiveLogSource):
 
     def __str__(self):
         return f"journalctl({'unit=' + self.unit if self.unit else 'all'})"
+
+    @staticmethod
+    def _normalise_since(value: str) -> str:
+        """Convert shorthand like '10m' or '1h' to journalctl-compatible format."""
+        import re as _re
+        m = _re.fullmatch(r"(\d+)\s*(m|min|h|hour|s|sec)", value.strip())
+        if m:
+            num, unit = m.group(1), m.group(2)
+            unit_map = {"m": "min", "min": "min", "h": "hour", "hour": "hour",
+                        "s": "seconds", "sec": "seconds"}
+            return f"{num} {unit_map[unit]} ago"
+        return value  # already valid or 'now'
 
 
 class SyslogSource(LiveLogSource):
@@ -287,64 +301,52 @@ class LiveMonitor:
 
     def stream_all(self) -> Generator[tuple[str, str], None, None]:
         """
-        Stream logs from all sources simultaneously.
+        Stream logs from all sources simultaneously using threads.
 
-        Yields:
-            tuple: (source_name, log_line)
-
-        Note: This uses a simple round-robin approach. For production,
-        consider using selectors or asyncio for true concurrent streaming.
+        Each source runs in its own daemon thread, pushing lines into a
+        shared queue.  The main thread reads from the queue and yields
+        (source_name, log_line) tuples.  This avoids the blocking
+        round-robin problem where one slow source starves the others.
         """
-        file_handles = {}
-        source_gens = {}
+        import queue
+        import threading
 
-        # Initialize generators for all available sources
+        log_queue: queue.Queue = queue.Queue(maxsize=5000)
+        active_threads: list[threading.Thread] = []
+
+        def _reader(source: LiveLogSource):
+            """Worker: read from a source and push lines into the queue."""
+            try:
+                for line in source.stream():
+                    log_queue.put((source.name, line))
+            except Exception as e:
+                self.logger.error(f"Source {source.name} crashed: {e}")
+
+        # Start a thread per available source
         for source in self.sources:
             if source.is_available():
-                try:
-                    source_gens[source.name] = source.stream()
-                    self.logger.info(f"Streaming from: {source}")
-                except Exception as e:
-                    self.logger.error(f"Failed to start streaming from {source}: {e}")
+                t = threading.Thread(target=_reader, args=(source,), daemon=True)
+                t.start()
+                active_threads.append(t)
+                self.logger.info(f"Streaming from: {source}")
+            else:
+                self.logger.warning(f"Source not available: {source}")
 
-        if not source_gens:
+        if not active_threads:
             self.logger.error("No log sources available!")
             return
 
-        # Round-robin through sources
-        available_sources = list(source_gens.keys())
-        idle_cycles = 0
-
-        while available_sources:
-            got_line = False
-            for source_name in list(available_sources):
-                try:
-                    line = next(source_gens[source_name])
-                    yield (source_name, line)
-                    got_line = True
-                    idle_cycles = 0
-                except StopIteration:
-                    self.logger.warning(f"Stream ended for {source_name}, restarting...")
-                    # Try to restart the source
-                    for src in self.sources:
-                        if src.name == source_name and src.is_available():
-                            try:
-                                source_gens[source_name] = src.stream()
-                            except Exception:
-                                available_sources.remove(source_name)
-                            break
-                    else:
-                        available_sources.remove(source_name)
-                except Exception as e:
-                    self.logger.error(f"Error reading from {source_name}: {e}")
-                    available_sources.remove(source_name)
-
-            if not got_line:
-                idle_cycles += 1
-                time.sleep(min(idle_cycles * 0.5, 5))  # Back off up to 5s when idle
-
-            if not available_sources:
-                break
+        # Yield from the shared queue
+        while True:
+            try:
+                item = log_queue.get(timeout=2)
+                yield item
+            except queue.Empty:
+                # Check if any threads are still alive
+                alive = any(t.is_alive() for t in active_threads)
+                if not alive:
+                    self.logger.warning("All source threads have exited")
+                    break
 
     @classmethod
     def from_config(cls, config: dict) -> "LiveMonitor":
@@ -364,10 +366,11 @@ class LiveMonitor:
         if sources_config.get("journalctl", {}).get("enabled", False):
             jc_config = sources_config.get("journalctl", {})
             units = jc_config.get("units", [None])  # None = all units
+            raw_since = jc_config.get("since", "1 min ago")
             for unit in units:
                 sources.append(
                     JournalctlSource(
-                        unit=unit, since=jc_config.get("since", "10m")
+                        unit=unit, since=raw_since
                     )
                 )
 

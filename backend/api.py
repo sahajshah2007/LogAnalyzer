@@ -61,11 +61,102 @@ def _get_sigma_engine():
     return _sigma_engine
 
 
+# ── Lazy EventAnalyzer & AlertManager singletons ────────────────
+# Re-creating these per request is expensive (re-parses all Sigma rules)
+# and loses stateful brute-force tracking between agent batches.
+_event_analyzer = None
+_alert_manager = None
+
+def _load_config() -> dict:
+    """Load config.yaml once."""
+    if CONFIG_PATH.exists():
+        with open(CONFIG_PATH) as f:
+            return yaml.safe_load(f)
+    return {}
+
+def _get_event_analyzer():
+    """Return a shared EventAnalyzer instance (preserves brute-force state)."""
+    global _event_analyzer
+    if _event_analyzer is None:
+        from analyzer import LogAnalyzer as EventAnalyzer
+        _event_analyzer = EventAnalyzer(_load_config())
+    return _event_analyzer
+
+def _get_alert_manager():
+    """Return a shared AlertManager instance."""
+    global _alert_manager
+    if _alert_manager is None:
+        from alerts import AlertManager
+        _alert_manager = AlertManager(_load_config())
+    return _alert_manager
+
+
+# ── In-memory ring buffer for live agent logs ────────────────────
+# Stores the last N raw log entries received from agents so the
+# frontend can display a live feed even for non-threat logs.
+from collections import deque
+import threading
+
+_LIVE_LOG_BUFFER_SIZE = 200
+_live_log_buffer: deque = deque(maxlen=_LIVE_LOG_BUFFER_SIZE)
+_live_log_lock = threading.Lock()
+
+
 
 # ── Helpers ─────────────────────────────────────────────────────
+def _ensure_db():
+    """Create alerts.db with the expected schema if it doesn't exist yet."""
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            event_type TEXT NOT NULL,
+            severity TEXT NOT NULL,
+            source_ip TEXT,
+            description TEXT,
+            raw_log TEXT,
+            matched_keywords TEXT,
+            false_positives TEXT,
+            mitre_tactics TEXT,
+            mitre_techniques TEXT,
+            sigma_rule_id TEXT,
+            sigma_rule_title TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON alerts(timestamp)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_severity ON alerts(severity)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_event_type ON alerts(event_type)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_source_ip ON alerts(source_ip)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_created_at ON alerts(created_at)")
+
+    # Live log stream table — stores every line the monitor processes
+    # so the frontend Live Feed can display them in real time.
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS live_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            source TEXT,
+            message TEXT NOT NULL,
+            is_alert INTEGER DEFAULT 0,
+            severity TEXT,
+            event_type TEXT,
+            description TEXT,
+            source_ip TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_live_logs_created ON live_logs(created_at)")
+
+    conn.commit()
+    conn.close()
+
+# Create / migrate the DB at import time so endpoints never hit a missing-file 503.
+_ensure_db()
+
+
 def get_conn():
-    if not DB_PATH.exists():
-        raise HTTPException(status_code=503, detail="alerts.db not found. Start monitoring first.")
     conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     return conn
@@ -250,6 +341,21 @@ def get_recent_alerts(n: int = Query(10, ge=1, le=50)):
     return [_row_to_dict(r) for r in rows]
 
 
+@app.get("/api/live-logs")
+def get_live_logs(n: int = Query(50, ge=1, le=200)):
+    """
+    Return the last N live log entries written by the monitor process.
+    Includes both benign logs and detected threats so the frontend
+    can render a true real-time feed of all monitored activity.
+    """
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM live_logs ORDER BY id DESC LIMIT ?", (n,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
 @app.get("/api/attacks/timeline")
 def get_timeline():
     """Alert counts grouped by hour for the last 24 hours."""
@@ -326,34 +432,48 @@ async def ingest_agent_logs(
     Receive and process logs from EDR agents.
     Each log is analyzed and alerts are saved to the database.
     """
-    from analyzer import LogAnalyzer as EventAnalyzer
-    from alerts import AlertManager
-    
-    # Load config
-    if CONFIG_PATH.exists():
-        with open(CONFIG_PATH) as f:
-            config = yaml.safe_load(f)
-    else:
-        config = {}
-    
-    analyzer = EventAnalyzer(config)
-    alert_manager = AlertManager(config)
+    analyzer = _get_event_analyzer()
+    alert_manager = _get_alert_manager()
     
     processed = 0
     alerts_created = 0
     
     for log_entry in request.logs:
+        # Store every log in the live buffer so the frontend can
+        # display a real-time feed of all agent activity.
+        live_entry = {
+            "timestamp": log_entry.timestamp,
+            "hostname": log_entry.hostname,
+            "source": log_entry.source,
+            "message": log_entry.message,
+            "agent_id": request.agent_id,
+            "is_alert": False,
+            "severity": None,
+            "event_type": None,
+            "description": None,
+        }
+
         # Analyze the log message
         alert = analyzer.analyze(log_entry.message)
         
         if alert:
-            # Enrich alert with agent metadata
-            alert.source_ip = log_entry.hostname
+            # Only set source_ip from agent hostname when the analyzer
+            # couldn't extract a real IP from the log line itself.
+            if alert.source_ip == "UNKNOWN":
+                alert.source_ip = log_entry.hostname
             if not alert.raw_log:
                 alert.raw_log = log_entry.raw
             
             alert_manager.save_alert(alert)
             alerts_created += 1
+
+            live_entry["is_alert"] = True
+            live_entry["severity"] = alert.severity
+            live_entry["event_type"] = alert.event_type
+            live_entry["description"] = alert.description
+
+        with _live_log_lock:
+            _live_log_buffer.append(live_entry)
         
         processed += 1
     
@@ -439,6 +559,20 @@ def list_agents():
         agents.append(agent)
     
     return {"agents": agents, "count": len(agents)}
+
+
+@app.get("/api/agent/live")
+def get_agent_live_logs(n: int = Query(50, ge=1, le=200)):
+    """
+    Return the last N raw log entries received from EDR agents.
+    Includes both benign logs and detected threats so the frontend
+    can render a true live feed of all agent activity.
+    """
+    with _live_log_lock:
+        # Return newest first
+        logs = list(_live_log_buffer)[-n:]
+    logs.reverse()
+    return {"logs": logs, "count": len(logs)}
 
 
 def _update_agent_status(agent_id: str, hostname: str, logs_count: int):

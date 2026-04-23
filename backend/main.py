@@ -7,13 +7,79 @@ import sys
 import signal
 import yaml
 import logging
+import sqlite3
 from pathlib import Path
 from typing import List
+from datetime import datetime
 
 from monitor import LogMonitor
 from live_monitor import LiveMonitor
 from analyzer import LogAnalyzer as EventAnalyzer
 from alerts import AlertManager, Colors
+
+# ── Shared DB path (same as api.py) ─────────────────────────────
+_DB_PATH = Path(__file__).parent.parent / "alerts.db"
+
+
+def _ensure_live_logs_table():
+    """Create the live_logs table if it doesn't exist yet."""
+    conn = sqlite3.connect(str(_DB_PATH))
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS live_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            source TEXT,
+            message TEXT NOT NULL,
+            is_alert INTEGER DEFAULT 0,
+            severity TEXT,
+            event_type TEXT,
+            description TEXT,
+            source_ip TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_live_logs_created ON live_logs(created_at)")
+    conn.commit()
+    conn.close()
+
+
+def _write_live_log(source: str, message: str, alert=None):
+    """Insert a row into live_logs. Called for every line the monitor processes."""
+    try:
+        conn = sqlite3.connect(str(_DB_PATH))
+        conn.execute(
+            """INSERT INTO live_logs
+               (timestamp, source, message, is_alert, severity, event_type, description, source_ip)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                datetime.now().isoformat(),
+                source,
+                message[:2000],  # cap very long lines
+                1 if alert else 0,
+                alert.severity if alert else None,
+                alert.event_type if alert else None,
+                alert.description if alert else None,
+                alert.source_ip if alert else None,
+            ),
+        )
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass  # never let a logging write crash the monitor
+
+
+def _prune_live_logs(keep: int = 500):
+    """Keep only the most recent `keep` rows in live_logs to prevent unbounded growth."""
+    try:
+        conn = sqlite3.connect(str(_DB_PATH))
+        conn.execute(
+            "DELETE FROM live_logs WHERE id NOT IN (SELECT id FROM live_logs ORDER BY id DESC LIMIT ?)",
+            (keep,),
+        )
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
 
 
 class LogAnalyzer:
@@ -145,6 +211,9 @@ class LogAnalyzer:
             f"{Colors.INFO}[*] Monitoring system logs from journalctl, syslog, and configured sources{Colors.RESET}\n"
         )
 
+        _ensure_live_logs_table()
+        prune_counter = 0
+
         try:
             self.live_monitor = LiveMonitor.from_config(self.config)
 
@@ -167,9 +236,18 @@ class LogAnalyzer:
                 # Analyze the line
                 alert = self.analyzer.analyze(enriched_line)
 
+                # Write every line to live_logs so the frontend can see it
+                _write_live_log(source_name, line, alert)
+
                 if alert:
                     self.alerts_triggered += 1
                     self.alert_manager.process_alert(alert)
+
+                # Prune old live_logs every 200 lines to prevent unbounded growth
+                prune_counter += 1
+                if prune_counter >= 200:
+                    _prune_live_logs(500)
+                    prune_counter = 0
 
         except KeyboardInterrupt:
             print(
@@ -193,6 +271,9 @@ class LogAnalyzer:
             f"{Colors.INFO}[*] Starting legacy file monitoring...{Colors.RESET}\n"
         )
 
+        _ensure_live_logs_table()
+        prune_counter = 0
+
         try:
             while self.running and self.monitors:
                 # Monitor the first configured log file
@@ -208,9 +289,17 @@ class LogAnalyzer:
                         # Analyze the line
                         alert = self.analyzer.analyze(line)
 
+                        # Write every line to live_logs
+                        _write_live_log("file", line, alert)
+
                         if alert:
                             self.alerts_triggered += 1
                             self.alert_manager.process_alert(alert)
+
+                        prune_counter += 1
+                        if prune_counter >= 200:
+                            _prune_live_logs(500)
+                            prune_counter = 0
 
         except KeyboardInterrupt:
             print(
