@@ -1,97 +1,146 @@
-# Bytecode and cache
+# ── Python ───────────────────────────────────────────────────────────────────
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
 
-# Logs and runtime files
-server.log
-alerts.db
-
-# Virtual environments
+# ── Virtual environments ──────────────────────────────────────────────────────
 venv/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Editor files
-*.swp
-*.swo
-.idea/
-.vscode/
-
-# Sensitive config (example, do not commit real keys)
-config.yaml
-
-# EDR agent files
-agent/agent.yaml
-agent/install.sh
-agent/README.md
-agent/*.log
-
-# Agent systemd service (if generated)
-log-analyzer-agent.service
-
-# Database migration docs
-DATABASE_MIGRATION.md
-IMPLEMENTATION_SUMMARY.md
-
-# PostgreSQL credentials (if used)
-*.pgpass
-*.psql
-
-# Frontend build
-frontend/node_modules/
-frontend/dist/
-
-# SigmaHQ community rules repo (cloned separately, not committed)
-sigma/sigmahq/
-
-# Misc
-*.bak
-*.tmp
-
-# Python virtual environments (common names)
-.env/
 .venv/
 env/
 ENV/
+.env/
 venv.bak/
+pythonenv*/
 
-# Jupyter Notebooks
-.ipynb_checkpoints/
+# ── Distribution / packaging ──────────────────────────────────────────────────
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+wheels/
+pip-wheel-metadata/
+MANIFEST
 
-# macOS system files
-.AppleDouble
-.LSOverride
+# ── Testing & coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+nosetests.xml
+test-results/
+junit-*.xml
+.hypothesis/
+.tox/
 
-# Linux system files
-.Trash-*/
+# ── Type checking ─────────────────────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
 
-# Windows system files
-ehthumbs.db
-Desktop.ini
+# ── Databases ─────────────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
 
-# npm logs
+# ── Logs & runtime files ──────────────────────────────────────────────────────
+*.log
+logs/
+server.log
+*.pid
+
+# ── Sensitive configuration ───────────────────────────────────────────────────
+# Keep config.yaml.example but never commit real keys
+config.yaml
+.env
+.env.*
+!.env.example
+secrets.yaml
+secrets.json
+credentials.json
+service_account.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.pgpass
+*.psql
+
+# ── Frontend ──────────────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/build/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+yarn.lock
+package-lock.json
+.npm/
+.pnpm-store/
 
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
+# ── EDR agent ─────────────────────────────────────────────────────────────────
+agent/agent.yaml
+agent/install.sh
+agent/*.log
+log-analyzer-agent.service
 
-# Test output
-test-results/
-junit-*.xml
+# ── Sigma community rules (cloned separately) ─────────────────────────────────
+sigma/sigmahq/
 
-# Backup files
+# ── Documentation generated at runtime ───────────────────────────────────────
+DATABASE_MIGRATION.md
+IMPLEMENTATION_SUMMARY.md
+
+# ── OS files ──────────────────────────────────────────────────────────────────
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.Trash-*/
 *~
-# Temporary files
+
+# ── Editor & IDE ──────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+.settings/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Temporary & backup files ──────────────────────────────────────────────────
+*.bak
+*.tmp
+*.temp
 tmp/
 temp/
